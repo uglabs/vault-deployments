@@ -7,6 +7,8 @@ locals {
   pvault_region = coalesce(var.pvault_region, var.default_region)
 
   env_keys = tolist(keys(var.pvault_env_vars))
+
+  vault_iam_configuration_secret = "${var.deployment_id}-vault-iam-configuration"
 }
 
 resource "google_cloud_run_service" "pvault-server" {
@@ -96,8 +98,26 @@ resource "google_cloud_run_service" "pvault-server" {
             }
           }
         }
+        env {
+          name  = "PVAULT_SERVICE_SET_IAM_ON_START_ONLY"
+          value = "true"
+        }
         ports {
           container_port = 8123
+        }
+        volume_mounts {
+          mount_path = "/etc/pvault/conf.d"
+          name       = "vault-iam-configuration"
+        }
+      }
+      volumes {
+        name = "vault-iam-configuration"
+        secret {
+          secret_name = local.vault_iam_configuration_secret
+          items {
+            key  = "latest"
+            path = "pvault.iam.toml"
+          }
         }
       }
       service_account_name = google_service_account.pvault-server-sa.email
@@ -114,6 +134,7 @@ resource "google_cloud_run_service" "pvault-server" {
   }
   autogenerate_revision_name = true
   depends_on = [
+    google_secret_manager_secret_iam_member.cloud_run_pvault_iam_configuration_access,
     google_secret_manager_secret_iam_member.cloud_run_secrets_access,
     google_kms_crypto_key_iam_member.crypto_key_cloud_run
   ]

@@ -67,3 +67,28 @@ resource "google_secret_manager_secret_iam_member" "bastion_vm_admin_api_key_sec
   member    = "serviceAccount:${google_service_account.pvault-bastion-sa[0].email}"
   role      = "roles/secretmanager.secretAccessor"
 }
+
+resource "google_secret_manager_secret" "vault_iam_configuration" {
+  secret_id = local.vault_iam_configuration_secret
+
+  replication {
+    user_managed {
+      replicas {
+        location = local.pvault_region
+      }
+    }
+  }
+
+  depends_on = [google_project_service.apis["secretmanager.googleapis.com"]]
+}
+
+resource "google_secret_manager_secret_version" "pvault_iam_configuration_version" {
+  secret      = google_secret_manager_secret.vault_iam_configuration.id
+  secret_data = var.vault_iam_configuration
+}
+
+resource "google_secret_manager_secret_iam_member" "cloud_run_pvault_iam_configuration_access" {
+  member    = "serviceAccount:${google_service_account.pvault-server-sa.email}"
+  role      = "roles/secretmanager.secretAccessor"
+  secret_id = google_secret_manager_secret.vault_iam_configuration.secret_id
+}
