@@ -166,6 +166,11 @@ variable "connector_cloud_run_max_instances" {
   default     = 4
 }
 
+variable "vault_iam_configuration" {
+  description = "Vault IAM configuration"
+  type = string
+}
+
 ###########################
 ### Cloud Load Balancer ###
 ###########################
