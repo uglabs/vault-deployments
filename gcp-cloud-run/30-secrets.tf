@@ -92,3 +92,28 @@ resource "google_secret_manager_secret_iam_member" "cloud_run_pvault_iam_configu
   role      = "roles/secretmanager.secretAccessor"
   secret_id = google_secret_manager_secret.vault_iam_configuration.secret_id
 }
+
+resource "google_secret_manager_secret" "vault_collections_configuration" {
+  secret_id = local.vault_collections_configuration_secret
+
+  replication {
+    user_managed {
+      replicas {
+        location = local.pvault_region
+      }
+    }
+  }
+
+  depends_on = [google_project_service.apis["secretmanager.googleapis.com"]]
+}
+
+resource "google_secret_manager_secret_version" "pvault_collections_configuration_version" {
+  secret      = google_secret_manager_secret.vault_collections_configuration.id
+  secret_data = var.vault_collections_configuration
+}
+
+resource "google_secret_manager_secret_iam_member" "cloud_run_pvault_collections_configuration_access" {
+  member    = "serviceAccount:${google_service_account.pvault-server-sa.email}"
+  role      = "roles/secretmanager.secretAccessor"
+  secret_id = google_secret_manager_secret.vault_collections_configuration.secret_id
+}

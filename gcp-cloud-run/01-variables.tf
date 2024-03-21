@@ -171,6 +171,11 @@ variable "vault_iam_configuration" {
   type = string
 }
 
+variable "vault_collections_configuration" {
+  description = "Vault Collections configuration"
+  type = string
+}
+
 ###########################
 ### Cloud Load Balancer ###
 ###########################
