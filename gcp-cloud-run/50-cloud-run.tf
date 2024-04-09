@@ -129,6 +129,7 @@ resource "google_cloud_run_service" "pvault-server" {
     metadata {
       annotations = {
         "autoscaling.knative.dev/maxScale"        = "5"
+        "autoscaling.knative.dev/minScale"        = "1"
         "run.googleapis.com/cloudsql-instances"   = module.postgresql-db.instance_connection_name
         "run.googleapis.com/client-name"          = "terraform"
         "run.googleapis.com/vpc-access-connector" = google_vpc_access_connector.connector_vault_cloud_run.id
