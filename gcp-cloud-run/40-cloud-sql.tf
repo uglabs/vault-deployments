@@ -11,7 +11,7 @@ locals {
 
 module "postgresql-db" {
   source              = "GoogleCloudPlatform/sql-db/google//modules/postgresql"
-  version             = "15.0.0"
+  version             = "20.0.0"
   name                = "${var.deployment_id}-vault-sql"
   db_name             = var.cloudsql_name
   database_version    = local.db_version
